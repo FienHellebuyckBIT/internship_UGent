@@ -32,7 +32,7 @@ if (!requireNamespace("QDNAseq.hg38", quietly = TRUE)) {
 #Load the required libraries
 library(remotes)
 library(GenomicRanges)
-library(QDNAseq)ls 
+library(QDNAseq)
 library(Biobase)
 library(ggplot2)
 library(dplyr)
@@ -45,27 +45,27 @@ if (!requireNamespace("QDNAseq.hg38", quietly = TRUE)) {
 library(QDNAseq.hg38)
 
 # Get command line arguments
-args <- commandArgs(trailingOnly = TRUE)
+#args <- commandArgs(trailingOnly = TRUE)
 
 #Base name
-base_name <- args[1]
-
-# Bam file path
-bam_file <- args[2]
+base_name <- "FD2500483"
+#Bam file path
+bam_file <- "~/internship/data/FD2500483_sorted.bam"
 
 # Bin size
-bin_size <-  as.numeric(args[3])
+bin_size <- as.numeric(readline(prompt="Enter binsize: "))
+#eg 15
 
 # Bin annotation
 bins <- getBinAnnotations(binSize = bin_size, genome = "hg38")
 
 #Output directory
 output <- dirname(bam_file)
-#output <- file.path(output, paste0(base_name, "_results"))
+output <- file.path(output, paste0(base_name, "_results"))
 
 print(paste("Processing:", base_name))
 
-readCounts <- binReadCounts(bins, bam_file)
+readCounts <- binReadCounts(bins, bam_file) #takes a while
 
 readCountsFiltered <- applyFilters(readCounts, residual = TRUE, blacklist = TRUE)
 
@@ -201,7 +201,7 @@ plotly_plot <- plot_ly(
 
 saveWidget(
   plotly_plot,
-  file= file.path(output,  paste0(base_name, "_CNV.html")),
+  file= file.path(paste0(base_name, "_CNV.html")), #in this directory
   selfcontained = TRUE,
   libdir = NULL
 )
