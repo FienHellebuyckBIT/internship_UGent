@@ -29,7 +29,6 @@ library(GenomicRanges)
 #change to setup working directory
 base_name <- "FD2500483"
 data_path <- "~/internship/data/"
-#bam_file <- paste0(data_path, "FD2500483_sorted.bam")
 path_output <- "~/internship/data/"
 #output <- file.path(path_output, paste0(base_name, "_results"))
 
