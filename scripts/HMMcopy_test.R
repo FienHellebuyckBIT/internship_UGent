@@ -1,13 +1,4 @@
-# Define the personal library path
-#personal_lib <- "./R_libs"
-
-# Add personal library to .libPaths
-#.libPaths(c(personal_lib, .libPaths()))
-
-# Install BiocManager if needed and load it
-if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager", repos = "https://cloud.r-project.org")
-}
+#installing required packages if not installed
 library(BiocManager)
 
 bioc_package <- function(pkg) {
@@ -16,100 +7,96 @@ bioc_package <- function(pkg) {
   }
   library(pkg, character.only = TRUE)
 }
-
 # List of required packages
 required_pkgs <- c(
-  "remotes", "Cairo", "GenomicRanges", "QDNAseq", "ggplot2", "dplyr", "tidyr", "Biobase", "plotly", "htmlwidgets"
+  "HMMcopy","plotly","dplyr","tidyr","htmlwidgets","GenomicRanges"
 )
 
 # Install or load required packages
 lapply(required_pkgs, bioc_package)
 
-# Install and load QDNAseq.hg38 from GitHub if not present
-if (!requireNamespace("QDNAseq.hg38", quietly = TRUE)) {
-  remotes::install_github("asntech/QDNAseq.hg38@main")
-}
-#Load the required libraries
-library(remotes)
-library(GenomicRanges)
-library(QDNAseq)
-library(Biobase)
-library(ggplot2)
+#load libraries
+library(HMMcopy)
 library(dplyr)
 library(tidyr)
 library(plotly)
 library(htmlwidgets)
-if (!requireNamespace("QDNAseq.hg38", quietly = TRUE)) {
-  remotes::install_github("asntech/QDNAseq.hg38@main")
-}
-library(QDNAseq.hg38)
+library(GenomicRanges)
 
-# Get command line arguments
-#args <- commandArgs(trailingOnly = TRUE)
 
-#Base name
+
+################################################################################
+#change to setup working directory
 base_name <- "FD2500483"
-#Bam file path
-bam_file <- "~/internship/data/FD2500483_sorted.bam"
+data_path <- "~/internship/data/"
+#bam_file <- paste0(data_path, "FD2500483_sorted.bam")
+path_output <- "~/internship/data/"
+#output <- file.path(path_output, paste0(base_name, "_results"))
 
-# Bin size
-#bin_size <- as.numeric(readline(prompt="Enter binsize: "))
-bin_size=15
-
-# Bin annotation
-bins <- getBinAnnotations(binSize = bin_size, genome = "hg38")
-
-#Output directory
-output <- dirname(bam_file)
-output <- file.path(output, paste0(base_name, "_results"))
-
+################################################################################
+#start
 print(paste("Processing:", base_name))
 
-readCounts <- binReadCounts(bins, bam_file) #takes a while
-print(readCounts)
+#options(stringsAsFactors = TRUE)
+rfile <- paste0(data_path, "read.wig")
+gfile <- paste0(data_path, "gc.wig")
+mfile <- paste0(data_path, "map.wig")
 
-readCountsFiltered <- applyFilters(readCounts, residual = TRUE, blacklist = TRUE)
-
-readCountsFiltered <- estimateCorrection(readCountsFiltered)
-
-#Include Sex Chromosomes
-readCountsFiltered <- applyFilters(readCountsFiltered, residual = TRUE, blacklist = TRUE, chromosomes = NA)
-
-copyNumbers <- correctBins(readCountsFiltered)
-
-copyNumbersNormalized <- normalizeBins(copyNumbers)
-
-copyNumbersSmooth <- smoothOutlierBins(copyNumbersNormalized)
-
-copyNumbersSegmented <- segmentBins(copyNumbersSmooth, transformFun = "sqrt")
-copyNumbersSegmented <- normalizeSegmentedBins(copyNumbersSegmented)
+reads <- wigsToRangedData(rfile, gfile, mfile)
+# Correct reads into copy number
+corrected_readcount <- correctReadcount(reads)
+# segment the read counts
+segments <- HMMsegment(corrected_readcount)
 
 
-# Call bins for CNV calling
-copyNumbersCalled <- callBins(copyNumbersSegmented)
+print("Processing done")
+################################################################################
+print("Making visualizations")
+#----------------------
+# simple visualization 
+#----------------------
+par(mar = c(4, 4, 2, 0))
+plotCorrection(corrected_readcount, pch = ".")
 
 
 
-# ---------------------------
-# New visualization
-# ---------------------------
+#----------------------
+# New visualization    
+#----------------------
 
-# Extract feature coordinates
-features <- fData(copyNumbersCalled)
+# Extract segment table
+df_segs <- segments$segs
 
-# Extract CNV values
-copynumber_values <- copyNumbersCalled@assayData$copynumber[,1]   # raw CNV
-segmented_values  <- copyNumbersCalled@assayData$segmented[,1]    # segmented CNV
+# Convert segments to GRanges
+gr_segs <- GRanges(
+  seqnames = df_segs$chr,
+  ranges   = IRanges(start = df_segs$start, end = df_segs$end),
+  median   = df_segs$median
+)
 
-# Combine into a single data frame
+# Convert bins (corrected_readcount) to GRanges
+gr_bins <- GRanges(
+  seqnames = corrected_readcount$chr,
+  ranges   = IRanges(start = corrected_readcount$start,
+                     end   = corrected_readcount$end)
+)
+
+# Find overlaps between bin and segment
+hits <- findOverlaps(gr_bins, gr_segs)
+
+# Create a per-bin segmented vector
+segmented_vec <- rep(NA, length(gr_bins))
+segmented_vec[queryHits(hits)] <- mcols(gr_segs)$median[subjectHits(hits)]
+
+# Make df
 cnv_df <- data.frame(
-    chr        = features$chromosome,
-    start      = features$start,
-    end        = features$end,
-    position   = ((features$start + features$end) / 2),
-    copynumber = log2(copynumber_values),
-    segmented  = log2(segmented_values)
-    )
+  chr        = corrected_readcount$chr,
+  start      = corrected_readcount$start,
+  end        = corrected_readcount$end,
+  position   = ((corrected_readcount$start + corrected_readcount$end) / 2),
+  copynumber = corrected_readcount$copy,   # already log2
+  segmented  = segmented_vec               # per-bin segmented values
+)
 
 
 # Clean NAs
@@ -117,7 +104,7 @@ clean_cnv_df <- cnv_df %>% drop_na()
 
 # Chromosome order
 present_chromosomes <- unique(clean_cnv_df$chr)
-chromosome_order <- c(as.character(1:23), "X", "Y")
+chromosome_order <- c(paste0("chr", 1:22), "chrX", "chrY")
 chromosome_order <- chromosome_order[chromosome_order %in% present_chromosomes]
 clean_cnv_df$chr <- factor(clean_cnv_df$chr, levels = chromosome_order)
 
@@ -133,12 +120,13 @@ chr_boundaries$midpoint <- (c(0, head(chr_boundaries$cumulative_position, -1)) +
 # Threshold for gain/loss
 threshold <- 0.35
 clean_cnv_df$color_group <- cut(clean_cnv_df$segmented, breaks = c(-Inf, -threshold, threshold, Inf),
-                                  labels = c("Loss", "Neutral", "Gain"))
+                                labels = c("Loss", "Neutral", "Gain"))
 clean_cnv_df$cbs_color_group <- cut(clean_cnv_df$segmented, breaks = c(-Inf, -threshold, threshold, Inf),
-                                      labels = c("CBS Loss", "CBS Neutral", "CBS Gain"))
+                                    labels = c("CBS Loss", "CBS Neutral", "CBS Gain"))
 
 # Number of reads
-total_reads <- sum(assayData(readCountsFiltered)$counts, na.rm = TRUE)
+total_reads <- sum(corrected_readcount$reads, na.rm = TRUE)
+
 
 
 # plotly
@@ -202,7 +190,7 @@ plotly_plot <- plot_ly(
 
 saveWidget(
   plotly_plot,
-  file= file.path(paste0(base_name, "_CNV_QDNAseq.html")), #in this directory
+  file= file.path(path_output, paste0(base_name, "_CNV_HMMcopy.html")), #in this directory
   selfcontained = TRUE,
   libdir = NULL
 )
@@ -210,4 +198,5 @@ saveWidget(
 
 
 
-print(paste("Process of", base_name, "completed."))
+
+print("Done")
