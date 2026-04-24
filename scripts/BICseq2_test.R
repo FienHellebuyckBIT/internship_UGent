@@ -26,15 +26,15 @@ lapply(required_pkgs, bioc_package)
 base_name <- "FD2500483"
 data_path <- "/home/guest/internship/data/"
 tool_path <- "/home/guest/internship/"
-bam_file <- file.path(paste0(data_path, "FD2500483_sorted.bam"))
+bam_file <- paste0(data_path, "FD2500483_sorted.bam")
 ################################################################################
 print(paste("Processing:", base_name))
 
 ## 1. get uniquelly mapped reads - samtools
-#samfile <- file.path(paste0(data_path,"FD2500483_unique.sam"))
-samfile <- file.path(paste0(data_path,"test.sam")) #smaller test file
+#samfile <- paste0(paste0(data_path,"FD2500483_unique.sam"))
+samfile <- paste0(data_path,"test.sam") #smaller test file
 
-system2(file.path(paste0(tool_path,"samtools-0.1.7a_getUnique-0.1.3/samtools")),    ##test !!!!!
+system2(paste0(tool_path,"samtools-0.1.7a_getUnique-0.1.3/samtools"),    ##test !!!!!
         args = c("view", bam_file),
         stdout = samfile)
 
@@ -52,7 +52,7 @@ for (line in readLines(samfile)){    #loop over reads
 }
 
 readpos_df <- data.frame(chr = chr, pos=pos)    #make df
-readPos <- file.path(paste0(data_path,base_name, "_readPos.txt"))
+readPos <- paste0(data_path,base_name, "_readPos.txt")
 write.table(    #write to file
   readpos_df,
   file=readPos,
@@ -63,11 +63,11 @@ write.table(    #write to file
 )
 #-------------------------------------------------
 # MapFile
-wigfile <- file.path(paste0(data_path, "hg38.fa.mappability_50bp.wig"))
+wigfile <- paste0(data_path, "hg38.fa.mappability_50bp.wig")
 
 ## make mappability files from one wig file, only needed once !
 chromosome_order <- c(paste0("chr", 1:22), "chrX", "chrY")
-dir.create(file.path(paste0(data_path,"mapfiles")))
+dir.create(paste0(data_path,"mapfiles"))
 
 
 
@@ -76,10 +76,10 @@ mapfiles <- c(paste0("chr", 1:22, ".map"), "chrX.map", "chrY.map")
 #-------------------------------------------------
 # make configFile
 chromnames <- sort(unique(chr))
-fafile <- file.path(paste0(data_path, "hg38.fa"))
+fafile <- paste0(data_path, "hg38.fa")
 
 
-binfilenorm <- file.path(paste0(chromnames,"_norm.bin"))
+binfilenorm <- paste0(chromnames,"_norm.bin")
 
 config <- data.frame(
   chromName = chromnames,
@@ -89,7 +89,7 @@ config <- data.frame(
   binFileNorm  = binfilenorm
 )
 
-config_file <- file.path(paste0(data_path,base_name,"_config.txt"))
+config_file <- paste0(data_path,base_name,"_config.txt")
 write.table(
   config,
   file = config_file,
@@ -104,9 +104,9 @@ write.table(
 
 #-------------------------------------------------------------------------------
 ## 2. BICseq2-norm to remove the biases in the data
-system2("chmod", args = c("777", "/home/guest/internship/BICseq2-norm_v0.2.6/tmp")) #add rights to tmp directory
+
 system2(
-  command = file.path(paste0(tool_path,"BICseq2-norm_v0.2.6/BICseq2-norm.pl")),
+  command = paste0(tool_path,"BICseq2-norm_v0.2.6/BICseq2-norm.pl"),
   args = c("-b", "50",config_file, "norm_output")
 )
 
