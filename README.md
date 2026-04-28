@@ -4,6 +4,7 @@ During my internship I evaluated four tools for detecting Copy Number Variations
 * QDNAseq
 * Control‑FREEC
 * BICseq2
+  
 All scripts used in this project are available in the scripts directory.
 
 1. *_test.R
@@ -15,3 +16,8 @@ The BICseq2 script is not finished yet.
 These scripts are a bit more automated. Only a few paths need to be updated at the top of the file.
 They are based on the mouse genome (mm10).
 
+Documentation wabpages for these tools:
+HMMcopy: https://bioconductor.org/packages/release/bioc/html/HMMcopy.html
+QDNAseq: https://www.bioconductor.org/packages/release/bioc/html/QDNAseq.html
+Control-FREEC: https://boevalab.inf.ethz.ch/FREEC/
+BICseq2: https://www.math.pku.edu.cn/teachers/xirb/downloads/software/BICseq2/BICseq2.html 
