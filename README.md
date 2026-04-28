@@ -17,7 +17,7 @@ The BICseq2 script is not finished yet.
 These scripts are a bit more automated. Only a few paths need to be updated at the top of the file.
 They are based on the mouse genome (mm10).
 
-Documentation wabpages for these tools:
+Documentation webpages for these tools:
 * HMMcopy: https://bioconductor.org/packages/release/bioc/html/HMMcopy.html
 * QDNAseq: https://www.bioconductor.org/packages/release/bioc/html/QDNAseq.html
 * Control-FREEC: https://boevalab.inf.ethz.ch/FREEC/
