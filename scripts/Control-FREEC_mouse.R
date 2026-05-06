@@ -1,14 +1,22 @@
 ################################################################################
-# script adjusted for VSC
 # Control-FREEC
 # https://boevalab.inf.ethz.ch/FREEC/tutorial.html#CONFIG
 ################################################################################
+# Define the personal library path
+personal_lib <- "/data/gent/510/vsc51018/R_libs"
+
+# Add personal library to .libPaths
+.libPaths(c(personal_lib, .libPaths()))
+
 #installing required packages if not installed
-library(BiocManager)
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager", lib = personal_lib)
+}
+
 
 bioc_package <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    BiocManager::install(pkg)
+    BiocManager::install(pkg, lib = personal_lib)
   }
   library(pkg, character.only = TRUE)
 }
@@ -30,20 +38,26 @@ library(glue)
 
 ################################################################################
 #specify path
-data_dir <- "/home/guest/internship/data/mouse/"
-setwd(data_dir)
+data_dir <- "/scratch/gent/vo/002/gvo00207/vsc51018/mouse/"
+#setwd(data_dir)
 #get bam files
-files <- list.files(".", pattern = "\\.bam$", recursive = TRUE, full.names = TRUE) 
+#files <- list.files(".", pattern = "\\.bam$", recursive = TRUE, full.names = TRUE) 
+# Get command line arguments
+args <- commandArgs(trailingOnly = TRUE)
+ 
+# Bam file path
+bam_file <- args[1]
+base_name <- args[2]
 #set windowsize
-windowsize <- 1000000
+windowsize <- 50000
 #path to tools
-tool_path <- "/home/guest/internship/"
+tool_path <- "/data/gent/510/vsc51018/"
 ################################################################################
 
-for (bam_file in files){
+
   #sample directory and name
   sample_dir <- dirname(bam_file)
-  base_name <- basename(sample_dir)
+  
   
   #start
   print(paste("Processing:", base_name))
@@ -52,14 +66,13 @@ for (bam_file in files){
   # Config File
   config <- glue(
     "[general]
-  chrLenFile = mm10.fa.fai      
+  chrLenFile = /scratch/gent/vo/002/gvo00207/vsc51018/mouse/mm10.fa.fai      
   ploidy = 2 
-  gemMappabilityFile = GRCm38_68_mm10.gem  
-  maxThreads = 2 
+  maxThreads = 4 
   outputDir = {sample_dir}  
   uniqueMatch = TRUE 
   window = {windowsize} 
-  chrFiles = chrFiles_freec  
+  chrFiles = /scratch/gent/vo/002/gvo00207/vsc51018/mouse/chrFiles_freec  
   [sample]
   mateFile = {bam_file}
   inputFormat = BAM
@@ -79,6 +92,7 @@ for (bam_file in files){
       "-conf", configFile
       # "-sample", bam_file
     )
+
   )
 
   #############################################################################
@@ -87,7 +101,8 @@ for (bam_file in files){
   # ---------------------------
   
   # read ratio file
-  ratio_data <- read.table(file.path(sample_dir,paste0(base_name,".bam_ratio.txt")), header=TRUE)#check!!
+  #ratio_data <- read.table(paste0(bam_file, "_ratio.txt"), header=TRUE)
+  ratio_data <- read.table(file.path(sample_dir, paste0(base_name, ".md.bam_ratio.txt")), header = TRUE)
   
   # Replace -1 with NA before log2 transformation
   ratio_data$Ratio[ratio_data$Ratio == -1] <- NA
@@ -131,7 +146,7 @@ for (bam_file in files){
                                       labels = c("CBS Loss", "CBS Neutral", "CBS Gain"))
   
   # read .cnp file for read counts
-  cnp_data <- read.table(paste0(data_path,"FD2500483_sorted.bam_sample.cpn"), header = FALSE)
+  cnp_data <- read.table(paste0(bam_file,"_sample.cpn"), header = FALSE)
   # sum all read starts (column 3)
   total_reads <- sum(cnp_data[, 3], na.rm = TRUE)
   
@@ -197,7 +212,7 @@ for (bam_file in files){
   
   saveWidget(
     plotly_plot,
-    file= paste0(base_name, "_CNV_C-FREEC.html"), 
+    file= paste0(bam_file, "_CNV_FREEC.html"),  
     selfcontained = TRUE,
     libdir = NULL
   )
@@ -205,8 +220,5 @@ for (bam_file in files){
   
   
   print(paste("Process of", base_name, "completed."))
-
-#end loop
-}
 
 print("Done")
