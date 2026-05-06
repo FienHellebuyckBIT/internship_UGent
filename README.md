@@ -25,4 +25,7 @@ Documentation webpages for these tools:
 * HMMcopy: https://bioconductor.org/packages/release/bioc/html/HMMcopy.html
 * QDNAseq: https://www.bioconductor.org/packages/release/bioc/html/QDNAseq.html
 * Control-FREEC: https://boevalab.inf.ethz.ch/FREEC/
-* BICseq2: https://www.math.pku.edu.cn/teachers/xirb/downloads/software/BICseq2/BICseq2.html 
+* BICseq2: https://www.math.pku.edu.cn/teachers/xirb/downloads/software/BICseq2/BICseq2.html
+
+
+The project data can be requested by contacting me at: fien.hellebuyck@student.howest.be
