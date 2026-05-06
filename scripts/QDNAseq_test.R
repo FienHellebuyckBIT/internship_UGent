@@ -44,9 +44,9 @@ if (!requireNamespace("QDNAseq.hg38", quietly = TRUE)) {
 }
 library(QDNAseq.hg38)
 
-# Get command line arguments
-#args <- commandArgs(trailingOnly = TRUE)
 
+
+################################################################################
 #Base name
 base_name <- "FD2500483"
 #Bam file path
