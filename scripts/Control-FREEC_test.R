@@ -44,8 +44,8 @@ config <- glue(
   maxThreads = 2 
   outputDir = {data_path}
   uniqueMatch = TRUE 
-  window = windowsize 
-  # chrFiles = {data_path}chrFiles_freec
+  window = {windowsize} 
+  chrFiles = {data_path}chrFiles_freec
   [sample]
   mateFile = {bam_file}
   inputFormat = BAM
