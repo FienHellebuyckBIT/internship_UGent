@@ -2,3 +2,4 @@
 .RData
 scripts/.Rhistory
 scripts/.RData
+scripts/*_test.R
