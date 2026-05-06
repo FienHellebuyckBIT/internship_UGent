@@ -1,9 +1,10 @@
 # internship_UGent
-During my internship I evaluated four tools for detecting Copy Number Variations (CNVs):
+During my internship I evaluated different tools for detecting Copy Number Variations (CNVs):
 * HMMcopy
 * QDNAseq
 * Control‑FREEC
 * BICseq2
+* CNVnator
   
 All scripts used in this project are available in the scripts directory.
 
@@ -13,7 +14,7 @@ These scripts were used to explore each tool and run it on a single sample.
 Most paths and the sample file are hardcoded, so you’ll need to adjust them to match your own folder structure and data.
 All scripts in this group use the human genome (hg38).
 The scripts use the same visualisation approach, which makes it easier to compare the tools.
-Note that BICseq2 script is not finished yet.
+Note that the BICseq2 and CNVnator scripts are not finished yet.
 
 2. *_mouse.R
    
