@@ -1,12 +1,25 @@
+###############################################################################
+# HMMcopy for multiple mouse samples, adjusted for use on VSC
+###############################################################################
+# Define the personal library path
+personal_lib <- "/data/gent/510/vsc51018/R_libs"
+
+# Add personal library to .libPaths
+.libPaths(c(personal_lib, .libPaths()))
+
 #installing required packages if not installed
-library(BiocManager)
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager", lib = personal_lib)
+}
+
 
 bioc_package <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    BiocManager::install(pkg)
+    BiocManager::install(pkg, lib = personal_lib)
   }
   library(pkg, character.only = TRUE)
 }
+
 # List of required packages
 required_pkgs <- c(
   "HMMcopy","plotly","dplyr","tidyr","htmlwidgets","GenomicRanges"
@@ -25,42 +38,32 @@ library(GenomicRanges)
 
 
 ################################################################################
-#specify path
-data_dir <- "/home/guest/internship/data/mouse/"
-setwd(data_dir)
-#get bam files
-files <- list.files(".", pattern = "\\.bam$", recursive = TRUE, full.names = TRUE) 
-################################################################################
-#path hmmcopy tools:
-path_hmmcopy <- system("conda info --envs | grep -Po 'hmmcopy\\K.*' | sed 's: ::g'",
-                       intern=TRUE)
-hmmcopy_tools <- file.path(path_hmmcopy, "bin")
-#make map file if not exist
-if (!file.exists("map_mm10.wig")) {
-  mapCounter <- file.path(hmmcopy_tools, "mapCounter")
-  system(paste0(
-        mapCounter, " -w 1000000 -c chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chrX,chrY mm10.gc5Base.bw > map_mm10.wig"))
-}
-
-#make gc file if not exist
-if (!file.exists("gc_mm10.wig")) {
-  gcCounter <- file.path(hmmcopy_tools, "gcCounter")
-  system(paste0(
-          gcCounter," -w 1000000 -c chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chrX,chrY mm10.fa > gc_mm10.wig"))
-}
+# Bam file path
+bam_file <- args[1]
+# sample name
+base_name <- args[2]
+# directory of sample
+sample_dir <- dirname(bam_file)
+# main directory
+mouse_data_dir <- dirname(sample_dir)
 
 ################################################################################
 
-for (bam_file in files){
-  #sample directory and name
-  sample_dir <- dirname(bam_file)
-  base_name <- basename(sample_dir)
-  
+#define files
+rfile <- file.path(sample_dir, paste0("read_", base_name, ".wig"))
+gfile <- file.path(mouse_data_dir, "gc_mm10.wig")
+mfile <- file.path(mouse_data_dir, "map_mm10.wig")
+
+################################################################################
+#hmmcopy tools:
+hmmcopy_tools <- Sys.getenv("HMMCOPY_TOOLS")
+
+################################################################################
   #start
   print(paste("Processing:", base_name))
   
   #make read file
-   if (!file.exists(file.path(sample_dir, paste0("read_", base_name, ".wig")))){
+   if (!file.exists(rfile)){
      readCounter <- file.path(hmmcopy_tools, "readCounter")
    system(
      paste0(
@@ -70,13 +73,6 @@ for (bam_file in files){
        bam_file," > ", file.path(sample_dir, paste0("read_", base_name, ".wig"))
      )
    )}
-
-
-  #define files
-  rfile <- file.path(sample_dir, paste0("read_", base_name, ".wig"))
-  gfile <- "gc_mm10.wig"
-  mfile <- "map_mm10.wig"
-  
 
   ##############################################################################
   
@@ -225,7 +221,6 @@ for (bam_file in files){
 
   print(paste("Process of", base_name, "completed."))
 
-#end loop
-}
+
 
 print("Done")
