@@ -1,5 +1,5 @@
 ###############################################################################
-# QDNAseq for multiple samples, adjusted for use on VSC
+# QDNAseq for multiple mouse samples, adjusted for use on VSC
 ###############################################################################
 # Define the personal library path
 personal_lib <- "/data/gent/510/vsc51018/R_libs"
@@ -21,7 +21,7 @@ bioc_package <- function(pkg) {
 }
 # List of required packages
 required_pkgs <- c(
-  "remotes", "Cairo", "GenomicRanges", "QDNAseq", "ggplot2", "dplyr", "tidyr", "Biobase", "plotly", "htmlwidgets"
+  "remotes", "GenomicRanges", "QDNAseq", "ggplot2", "dplyr", "tidyr", "Biobase", "plotly", "htmlwidgets"
 )
 
 # Install or load required packages
@@ -46,6 +46,8 @@ if (!requireNamespace("QDNAseq.mm10", quietly = TRUE)) {
 }
 library(QDNAseq.mm10)
 ################################################################################
+# Get command line arguments
+args <- commandArgs(trailingOnly = TRUE)
 # Bam file path
 bam_file <- args[1]
 # sample name
@@ -105,8 +107,8 @@ cnv_df <- data.frame(
     start      = features$start,
     end        = features$end,
     position   = ((features$start + features$end) / 2),
-    copynumber = log2(copynumber_values),
-    segmented  = log2(segmented_values)
+    copynumber = ifelse(copynumber_values > 0, log2(copynumber_values), NA),
+    segmented  = ifelse(segmented_values > 0, log2(segmented_values), NA)
 )
   
   

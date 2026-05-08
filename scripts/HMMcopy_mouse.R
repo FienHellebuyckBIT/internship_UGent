@@ -1,5 +1,6 @@
 ###############################################################################
 # HMMcopy for multiple mouse samples, adjusted for use on VSC
+# run on shinx cluster, not on doduo
 ###############################################################################
 # Define the personal library path
 personal_lib <- "/data/gent/510/vsc51018/R_libs"
@@ -15,7 +16,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 
 bioc_package <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    BiocManager::install(pkg, lib = personal_lib)
+    BiocManager::install(pkg, lib = personal_lib, ask = FALSE, update = FALSE, type="source")
   }
   library(pkg, character.only = TRUE)
 }
@@ -29,15 +30,16 @@ required_pkgs <- c(
 lapply(required_pkgs, bioc_package)
 
 #load libraries
-library(HMMcopy)
+
 library(dplyr)
 library(tidyr)
 library(plotly)
 library(htmlwidgets)
 library(GenomicRanges)
-
-
+library(HMMcopy)
 ################################################################################
+# Get command line arguments
+args <- commandArgs(trailingOnly = TRUE)
 # Bam file path
 bam_file <- args[1]
 # sample name
@@ -47,35 +49,16 @@ sample_dir <- dirname(bam_file)
 # main directory
 mouse_data_dir <- dirname(sample_dir)
 
-################################################################################
-
-#define files
+# paths to files
 rfile <- file.path(sample_dir, paste0("read_", base_name, ".wig"))
 gfile <- file.path(mouse_data_dir, "gc_mm10.wig")
 mfile <- file.path(mouse_data_dir, "map_mm10.wig")
 
 ################################################################################
-#hmmcopy tools:
-hmmcopy_tools <- Sys.getenv("HMMCOPY_TOOLS")
 
-################################################################################
   #start
-  print(paste("Processing:", base_name))
-  
-  #make read file
-   if (!file.exists(rfile)){
-     readCounter <- file.path(hmmcopy_tools, "readCounter")
-   system(
-     paste0(
-       readCounter,
-       " -w 1000000 -c chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,",
-       "chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chrX,chrY ",
-       bam_file," > ", file.path(sample_dir, paste0("read_", base_name, ".wig"))
-     )
-   )}
+  print(paste("Start ", base_name))
 
-  ##############################################################################
-  
   reads <- wigsToRangedData(rfile, gfile, mfile)
   # Correct reads into copy number
   corrected_readcount <- correctReadcount(reads)
@@ -89,6 +72,7 @@ hmmcopy_tools <- Sys.getenv("HMMCOPY_TOOLS")
   
   # Extract segment table
   df_segs <- segments$segs
+
   
   # Convert segments to GRanges
   gr_segs <- GRanges(
