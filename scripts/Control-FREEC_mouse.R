@@ -37,21 +37,16 @@ library(GenomicRanges)
 library(glue)
 
 ################################################################################
-#specify path
-data_dir <- "/scratch/gent/vo/002/gvo00207/vsc51018/mouse/"
-#setwd(data_dir)
-#get bam files
-#files <- list.files(".", pattern = "\\.bam$", recursive = TRUE, full.names = TRUE) 
 # Get command line arguments
 args <- commandArgs(trailingOnly = TRUE)
  
 # Bam file path
 bam_file <- args[1]
 base_name <- args[2]
-#set windowsize
-windowsize <- 50000
 #path to tools
 tool_path <- "/data/gent/510/vsc51018/"
+#windowsize 
+windowsize <- 1000000
 ################################################################################
 
 
@@ -68,11 +63,12 @@ tool_path <- "/data/gent/510/vsc51018/"
     "[general]
   chrLenFile = /scratch/gent/vo/002/gvo00207/vsc51018/mouse/mm10.fa.fai      
   ploidy = 2 
-  maxThreads = 4 
+  maxThreads = 16
   outputDir = {sample_dir}  
   uniqueMatch = TRUE 
-  window = {windowsize} 
+  window = 1000000
   chrFiles = /scratch/gent/vo/002/gvo00207/vsc51018/mouse/chrFiles_freec  
+  sambamba = /scratch/gent/vo/002/gvo00207/vsc51018/sambamba
   [sample]
   mateFile = {bam_file}
   inputFormat = BAM
@@ -212,7 +208,7 @@ tool_path <- "/data/gent/510/vsc51018/"
   
   saveWidget(
     plotly_plot,
-    file= paste0(bam_file, "_CNV_FREEC.html"),  
+    file= file.path("/scratch/gent/vo/002/gvo00207/vsc51018/output_mouse_data",paste0(base_name,"_", windowsize, "_CNV_FREEC.html")),  
     selfcontained = TRUE,
     libdir = NULL
   )
