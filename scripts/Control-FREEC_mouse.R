@@ -43,6 +43,8 @@ args <- commandArgs(trailingOnly = TRUE)
 # Bam file path
 bam_file <- args[1]
 base_name <- args[2]
+#output directory for plots
+outdir <- args[3]
 #path to tools
 tool_path <- "/data/gent/510/vsc51018/"
 #windowsize 
@@ -208,7 +210,7 @@ windowsize <- 1000000
   
   saveWidget(
     plotly_plot,
-    file= file.path("/scratch/gent/vo/002/gvo00207/vsc51018/output_mouse_data",paste0(base_name,"_", windowsize, "_CNV_FREEC.html")),  
+    file= file.path(outdir ,paste0(base_name,"_", windowsize, "_CNV_FREEC.html")),  
     selfcontained = TRUE,
     libdir = NULL
   )

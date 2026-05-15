@@ -54,10 +54,12 @@ bam_file <- args[1]
 base_name <- args[2]
 # directory of sample
 sample_dir <- dirname(bam_file)
+#output directory for plots
+outdir <- args[3]
 ################################################################################
 
 # Bin size
-bin_size=100 #kb
+bin_size=1000 #kb
   
 # Bin annotation
 bins <- getBinAnnotations(binSize = bin_size, genome = "mm10")
@@ -202,7 +204,7 @@ layout(
   
 saveWidget(
     plotly_plot,
-    file= file.path(sample_dir, paste0(base_name,"_",bin_size, "_CNV_QDNAseq_mouse.html")), 
+    file= file.path(outdir, paste0(base_name,"_",bin_size, "_CNV_QDNAseq_mouse.html")), 
     selfcontained = TRUE,
     libdir = NULL
 )

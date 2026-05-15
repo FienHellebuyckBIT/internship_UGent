@@ -48,6 +48,8 @@ base_name <- args[2]
 sample_dir <- dirname(bam_file)
 # main directory
 mouse_data_dir <- dirname(sample_dir)
+#output directory for plots
+outdir <- args[3]
 
 # paths to files
 rfile <- file.path(sample_dir, paste0("read_", base_name, ".wig"))
@@ -197,7 +199,7 @@ mfile <- file.path(mouse_data_dir, "map_mm10.wig")
   
   saveWidget(
     plotly_plot,
-    file= file.path(sample_dir, paste0(base_name, "_CNV_HMMcopy_mouse.html")), 
+    file= file.path(outdir, paste0(base_name, "_CNV_HMMcopy_mouse.html")), 
     selfcontained = TRUE,
     libdir = NULL
   )
