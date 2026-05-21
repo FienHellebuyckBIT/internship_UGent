@@ -34,7 +34,7 @@ data_path <- "/home/guest/internship/data/"
 bam_file <- paste0(data_path, "FD2500483_sorted.bam")
 setwd(data_path)
 ################################################################################
-#commands
+### commands ###
 # conda activate cnvnator
 # 1. Extract read mapping
 # system("cnvnator -root FD2500483_cnvnator.root -tree FD2500483_sorted.bam -chrom $(seq -f 'chr%g' 1 22) chrX chrY -lite")
@@ -46,40 +46,75 @@ setwd(data_path)
 # system("cnvnator -root FD2500483_cnvnator.root -chrom $(seq -f 'chr%g' 1 22) chrX chrY -partition 1000 ")
 # # 5 CNV calling
 # system("cnvnator -root FD2500483_cnvnator.root -chrom $(seq -f 'chr%g' 1 22) chrX chrY -call 1000 > FD2500483_cnvnator_calls.txt")
-
+# 6. get bins from rootfile
+# python extract_cnvnator_bins.py 
 ################################################################################
-#visualisation
-#extract info from calls.txt file
-cnv_calls <- read.table("FD2500483_cnvnator_calls.txt",sep = "\t", header = FALSE)
-#extract coordinates
-chr <- str_extract(cnv_calls$V2, "^chr[^:]+")
-start_end <- str_extract(cnv_calls$V2, "[0-9]+-[0-9]+$")
-start <- as.numeric(str_extract(start_end, "^[0-9]+"))
-end <- as.numeric(str_extract(start_end, "[0-9]+$"))
-#extract normalized readdepth
-rd <- as.numeric(cnv_calls$V4)
-copynumber_log2 <- log2(pmax(rd, 1e-6))
+### pre-processing ###
+# load per bin data from rootfile
+bins <- read.table(
+  "cnvnator_bins.tsv",
+  header = TRUE,
+  sep = "\t",
+  stringsAsFactors = FALSE
+)
 
-
-#Create the dataframe
-cnv_df <- data.frame(
-  chr        = chr,
-  start      = start,
-  end        = end,
-  position   = ((start+end)/2),
-  copynumber = copynumber_log2,
-  segmented  = copynumber_log2
-  
+# load cnv calls
+calls <- read.table(
+  "FD2500483_cnvnator_calls.txt",
+  fill = TRUE,
+  stringsAsFactors = FALSE
 )
 
 
 
+#Parse CNVnator call regions
+calls$type  <- calls$V1
+calls$chr   <- str_extract(calls$V2, "^chr[^:]+")
+calls$start <- as.numeric(str_extract(calls$V2, "(?<=:)[0-9]+"))
+calls$end   <- as.numeric(str_extract(calls$V2, "(?<=-)[0-9]+"))
+
+
+
+#Add segmentation column to bins
+# Default: normal copy number
+bins$segmented <- 0
+
+
+#Assign segmentation values per bin
+for (i in 1:nrow(calls)) {
+  
+  idx <- bins$chr == calls$chr[i] &
+    bins$start >= calls$start[i] &
+    bins$end   <= calls$end[i]
+  
+  if (calls$type[i] == "deletion") {
+    bins$segmented[idx] <- -1
+  }
+  
+  if (calls$type[i] == "duplication") {
+    bins$segmented[idx] <- 1
+  }
+}
+
+
+
+#Create the dataframe
+
+cnv_df <- data.frame(
+  chr        = bins$chr,
+  start      = bins$start,
+  end        = bins$end,
+  position   = bins$position,
+  copynumber = bins$log2ratio,
+  segmented  = bins$segmented
+)
+
+### Preview
+head(cnv_df)
+
+
 ##############################################
-
-
-
-###############################################
-
+### visualisations ###
 # Remove rows with NA values
 clean_cnv_df <- cnv_df %>% drop_na()
 
