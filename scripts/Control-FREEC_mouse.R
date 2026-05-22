@@ -1,5 +1,5 @@
 ################################################################################
-# Control-FREEC
+# Control-FREEC #
 # https://boevalab.inf.ethz.ch/FREEC/tutorial.html#CONFIG
 ################################################################################
 # Define the personal library path
