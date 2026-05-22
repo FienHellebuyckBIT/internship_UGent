@@ -142,11 +142,9 @@ clean_cnv_df$color_group <- cut(clean_cnv_df$segmented, breaks = c(-Inf, -thresh
 clean_cnv_df$cbs_color_group <- cut(clean_cnv_df$segmented, breaks = c(-Inf, -threshold, threshold, Inf),
                                     labels = c("CBS Loss", "CBS Neutral", "CBS Gain"))
 
-# read .cnp file for read counts
-cnp_data <- read.table(paste0(data_path,"FD2500483_sorted.bam_sample.cpn"), header = FALSE)
-# sum all read starts (column 3)
-total_reads <- sum(cnp_data[, 3], na.rm = TRUE)
 
+# Number of reads
+total_reads <- sum(bins$rd, na.rm = TRUE)
 
 # plotly
 
