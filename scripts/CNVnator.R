@@ -1,14 +1,23 @@
 # CNVnator
 ################################################################################
+# Define the personal library path
+personal_lib <- "/data/gent/510/vsc51018/R_libs"
+
+# Add personal library to .libPaths
+.libPaths(c(personal_lib, .libPaths()))
+
 #installing required packages if not installed
-library(BiocManager)
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager", lib = personal_lib)
+}
 
 bioc_package <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
-    BiocManager::install(pkg)
+    BiocManager::install(pkg, lib = personal_lib, ask = FALSE, update = FALSE, type="source")
   }
   library(pkg, character.only = TRUE)
 }
+
 # List of required packages
 required_pkgs <- c(
   "plotly","dplyr","tidyr","htmlwidgets","GenomicRanges","stringr"
@@ -27,32 +36,19 @@ library(GenomicRanges)
 library(stringr)
 
 ################################################################################
+# Get command line arguments
+args <- commandArgs(trailingOnly = TRUE)
 #paths
-base_name <- "FD2500483"
-data_path <- "/home/guest/internship/data/"
-#tool_path <- "/home/guest/internship/"
-bam_file <- paste0(data_path, "FD2500483_sorted.bam")
-setwd(data_path)
-################################################################################
-### commands ###
-# conda activate cnvnator
-# 1. Extract read mapping
-# system("cnvnator -root FD2500483_cnvnator.root -tree FD2500483_sorted.bam -chrom $(seq -f 'chr%g' 1 22) chrX chrY -lite")
-# # 2. Generate histogram
-# system("cnvnator -root FD2500483_cnvnator.root -his 1000 -d chrFiles_freec -chrom $(seq -f 'chr%g' 1 22) chrX chrY")
-# # 3. Calculate statistics
-# system("cnvnator -root FD2500483_cnvnator.root -stat 1000 -chrom $(seq -f 'chr%g' 1 22) chrX chrY")
-# # 4 RD SIGNAL PARTITIONING
-# system("cnvnator -root FD2500483_cnvnator.root -chrom $(seq -f 'chr%g' 1 22) chrX chrY -partition 1000 ")
-# # 5 CNV calling
-# system("cnvnator -root FD2500483_cnvnator.root -chrom $(seq -f 'chr%g' 1 22) chrX chrY -call 1000 > FD2500483_cnvnator_calls.txt")
-# 6. get bins from rootfile
-# python extract_cnvnator_bins.py 
+base_name <- args[1]
+outdir <- args[2]
+BIN_SIZE <- args[3]
+tsv_file <- args[4]
+cnv_calls_file <- args[5]
 ################################################################################
 ### pre-processing ###
 # load per bin data from rootfile
 bins <- read.table(
-  "cnvnator_bins.tsv",
+  tsv_file,
   header = TRUE,
   sep = "\t",
   stringsAsFactors = FALSE
@@ -60,7 +56,7 @@ bins <- read.table(
 
 # load cnv calls
 calls <- read.table(
-  "FD2500483_cnvnator_calls.txt",
+  cnv_calls_file,
   fill = TRUE,
   stringsAsFactors = FALSE
 )
@@ -142,10 +138,8 @@ clean_cnv_df$color_group <- cut(clean_cnv_df$segmented, breaks = c(-Inf, -thresh
 clean_cnv_df$cbs_color_group <- cut(clean_cnv_df$segmented, breaks = c(-Inf, -threshold, threshold, Inf),
                                     labels = c("CBS Loss", "CBS Neutral", "CBS Gain"))
 
-# read .cnp file for read counts
-cnp_data <- read.table(paste0(data_path,"FD2500483_sorted.bam_sample.cpn"), header = FALSE)
-# sum all read starts (column 3)
-total_reads <- sum(cnp_data[, 3], na.rm = TRUE)
+# Number of reads
+total_reads <- sum(bins$rd, na.rm = TRUE)
 
 
 # plotly
@@ -209,7 +203,7 @@ plotly_plot <- plot_ly(
 
 saveWidget(
   plotly_plot,
-  file= paste0(base_name, "_cnvnator.html"), 
+  file= file.path(outdir ,paste0(base_name,"_", BIN_SIZE, "_CNV_FREEC.html"))
   selfcontained = TRUE,
   libdir = NULL
 )

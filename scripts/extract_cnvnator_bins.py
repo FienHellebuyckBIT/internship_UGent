@@ -1,9 +1,12 @@
 import uproot
 import pandas as pd
 import numpy as np
+import sys
 
-ROOT_FILE = "FD2500483_cnvnator.root"
-BIN_SIZE = 500000
+#Import arguments from bash script
+ROOT_FILE = sys.argv[1]
+BIN_SIZE = int(sys.argv[2])
+tsv_file = sys.argv[3]
 
 f = uproot.open(ROOT_FILE)
 
@@ -63,7 +66,7 @@ final_df["position"] = (
 ) / 2
 
 final_df.to_csv(
-    "cnvnator_bins.tsv",
+    tsv_file,
     sep="\t",
     index=False
 )
