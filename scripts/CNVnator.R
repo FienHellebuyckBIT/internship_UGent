@@ -43,7 +43,7 @@ base_name <- args[1]
 outdir <- args[2]
 BIN_SIZE <- args[3]
 tsv_file <- args[4]
-cnv_calls_file <- args[5]
+calls_file <- args[5]
 ################################################################################
 ### pre-processing ###
 # load per bin data from rootfile
@@ -56,7 +56,7 @@ bins <- read.table(
 
 # load cnv calls
 calls <- read.table(
-  cnv_calls_file,
+  calls_file,
   fill = TRUE,
   stringsAsFactors = FALSE
 )
@@ -203,7 +203,7 @@ plotly_plot <- plot_ly(
 
 saveWidget(
   plotly_plot,
-  file= file.path(outdir ,paste0(base_name,"_", BIN_SIZE, "_CNV_FREEC.html"))
+  file= file.path(outdir ,paste0(base_name,"_", BIN_SIZE, "_CNV_FREEC.html")),
   selfcontained = TRUE,
   libdir = NULL
 )
