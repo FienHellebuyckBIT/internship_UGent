@@ -203,7 +203,7 @@ plotly_plot <- plot_ly(
 
 saveWidget(
   plotly_plot,
-  file= file.path(outdir ,paste0(base_name,"_", BIN_SIZE, "_CNV_FREEC.html")),
+  file= file.path(outdir ,paste0(base_name,"_", BIN_SIZE, "_CNVnator.html")),
   selfcontained = TRUE,
   libdir = NULL
 )
