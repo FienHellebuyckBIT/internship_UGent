@@ -68,7 +68,7 @@ calls$type  <- calls$V1
 calls$chr   <- str_extract(calls$V2, "^chr[^:]+")
 calls$start <- as.numeric(str_extract(calls$V2, "(?<=:)[0-9]+"))
 calls$end   <- as.numeric(str_extract(calls$V2, "(?<=-)[0-9]+"))
-
+calls$cn    <- log2(as.numeric(calls$V4))
 
 
 #Add segmentation column to bins
@@ -82,18 +82,10 @@ for (i in 1:nrow(calls)) {
   idx <- bins$chr == calls$chr[i] &
     bins$start >= calls$start[i] &
     bins$end   <= calls$end[i]
-  
-  if (calls$type[i] == "deletion") {
-    bins$segmented[idx] <- -1
-  }
-  
-  if (calls$type[i] == "duplication") {
-    bins$segmented[idx] <- 1
-  }
+ 
+    bins$segmented[idx] <- calls$cn[i]
+ 
 }
-
-
-
 #Create the dataframe
 
 cnv_df <- data.frame(
