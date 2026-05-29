@@ -27,10 +27,7 @@ required_pkgs <- c(
 # Install or load required packages
 lapply(required_pkgs, bioc_package)
 
-# Install and load QDNAseq.hg38 from GitHub if not present
-if (!requireNamespace("QDNAseq.hg38", quietly = TRUE)) {
-  remotes::install_github("asntech/QDNAseq.hg38@main")
-}
+
 #Load the required libraries
 library(remotes)
 library(GenomicRanges)
