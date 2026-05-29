@@ -46,7 +46,7 @@ base_name <- args[2]
 #output directory for plots
 outdir <- args[3]
 #path to tools
-tool_path <- "/data/gent/510/vsc51018/"
+tool_path <- "/scratch/gent/vo/002/gvo00207/vsc51018/"
 #windowsize 
 windowsize <- 1000000
 ################################################################################
