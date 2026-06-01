@@ -44,15 +44,13 @@ args <- commandArgs(trailingOnly = TRUE)
 bam_file <- args[1]
 # sample name
 base_name <- args[2]
-# directory of sample
-sample_dir <- dirname(bam_file)
 # main directory
-mouse_data_dir <- dirname(sample_dir)
+mouse_data_dir <- args[3]
 #output directory for plots
-outdir <- args[3]
+outdir <- args[4]
 
 # paths to files
-rfile <- file.path(sample_dir, paste0("read_", base_name, ".wig"))
+rfile <- args[5]
 gfile <- file.path(mouse_data_dir, "gc_mm10.wig")
 mfile <- file.path(mouse_data_dir, "map_mm10.wig")
 
