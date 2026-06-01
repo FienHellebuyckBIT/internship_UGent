@@ -100,7 +100,7 @@ windowsize <- 1000000
   
   # read ratio file
   #ratio_data <- read.table(paste0(bam_file, "_ratio.txt"), header=TRUE)
-  ratio_data <- read.table(file.path(sample_dir, paste0(base_name, ".md.bam_ratio.txt")), header = TRUE)
+  ratio_data <- read.table(file.path(sample_dir, paste0(base_name, ".bam_ratio.txt")), header = TRUE)
   
   # Replace -1 with NA before log2 transformation
   ratio_data$Ratio[ratio_data$Ratio == -1] <- NA
