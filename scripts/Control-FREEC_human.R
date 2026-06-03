@@ -119,8 +119,6 @@ windowsize <- 100000
   # Remove rows with NA values
   clean_cnv_df <- cnv_df %>% drop_na()
   
-  
-  
   # Chromosome order
   present_chromosomes <- unique(clean_cnv_df$chr)
   chromosome_order <- c(as.character(1:22), "X", "Y")
@@ -148,7 +146,16 @@ windowsize <- 100000
   # sum all read starts (column 3)
   total_reads <- sum(cnp_data[, 3], na.rm = TRUE)
   
-  
+# write clean_cnv_df to file#######################
+write.table(
+  clean_cnv_df,
+  file = file.path(outdir,paste0(base_name,"_Control-FREEC_clean_cnv_df.tsv")),
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE)
+##################################  
+
+
   # plotly
   
   pal <- c("red","black","blue")

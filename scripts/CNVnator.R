@@ -97,16 +97,10 @@ cnv_df <- data.frame(
   segmented  = bins$segmented
 )
 
-### Preview
-head(cnv_df)
 
-
-##############################################
 ### visualisations ###
 # Remove rows with NA values
 clean_cnv_df <- cnv_df %>% drop_na()
-
-
 
 # Chromosome order
 present_chromosomes <- unique(clean_cnv_df$chr)
@@ -133,6 +127,14 @@ clean_cnv_df$cbs_color_group <- cut(clean_cnv_df$segmented, breaks = c(-Inf, -th
 # Number of reads
 total_reads <- sum(bins$rd, na.rm = TRUE)
 
+# write clean_cnv_df to file#######################
+write.table(
+  clean_cnv_df,
+  file = file.path(outdir,paste0(base_name,"_CNVnator_clean_cnv_df.tsv")),
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE)
+##################################
 
 # plotly
 

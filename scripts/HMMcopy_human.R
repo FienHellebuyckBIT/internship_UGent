@@ -108,7 +108,7 @@ mfile <- file.path(dir, "map_hg38_100kb.wig")
   
   # Clean NAs
   clean_cnv_df <- cnv_df %>% drop_na()
-  
+
   # Chromosome order
   present_chromosomes <- unique(clean_cnv_df$chr)
   chromosome_order <- c(paste0("chr", 1:22), "chrX", "chrY")
@@ -134,7 +134,14 @@ mfile <- file.path(dir, "map_hg38_100kb.wig")
   # Number of reads
   total_reads <- sum(corrected_readcount$reads, na.rm = TRUE)
   
-  
+# write clean_cnv_df to file#######################
+write.table(
+  clean_cnv_df,
+  file = file.path(outdir,paste0(base_name,"_HMMcopy_clean_cnv_df.tsv")),
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE)
+##################################
   
   # plotly
   

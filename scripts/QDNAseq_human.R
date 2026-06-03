@@ -99,7 +99,9 @@ features <- fData(copyNumbersCalled)
 # Extract CNV values
 copynumber_values <- copyNumbersCalled@assayData$copynumber[,1]   # raw CNV
 segmented_values  <- copyNumbersCalled@assayData$segmented[,1]    # segmented CNV
-  
+
+
+
   # Combine into a single data frame
 cnv_df <- data.frame(
     chr        = features$chromosome,
@@ -110,10 +112,11 @@ cnv_df <- data.frame(
     segmented  = ifelse(segmented_values > 0, log2(segmented_values), NA)
 )
   
-  
+
+
 # Clean NAs
 clean_cnv_df <- cnv_df %>% drop_na()
- 
+
 # Chromosome order
 present_chromosomes <- unique(clean_cnv_df$chr)
 chromosome_order <- c(as.character(1:22), "X", "Y")
@@ -138,8 +141,16 @@ clean_cnv_df$cbs_color_group <- cut(clean_cnv_df$segmented, breaks = c(-Inf, -th
   
 # Number of reads
 total_reads <- sum(assayData(readCountsFiltered)$counts, na.rm = TRUE)
-  
-  
+
+# write clean_cnv_df to file#######################
+write.table(
+  clean_cnv_df,
+  file = file.path(outdir,paste0(base_name,"_QDNAseq_clean_cnv_df.tsv")),
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE)
+##################################
+
 # plotly
   
 pal <- c("red","black","blue")
