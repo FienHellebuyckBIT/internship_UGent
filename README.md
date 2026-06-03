@@ -22,6 +22,9 @@ These scripts are a bit more automated. Only a few paths need to be updated at t
 They are based on the mouse genome (mm10).
 Some commands that previously had to be run manually (to create required input files before running the tools) are now integrated directly into the scripts.
 
+3. extract_cnvnator_bins.py
+The script extract_cnvnator_bins.py is a dedicated script used after running the standard CNVnator commands. These commands can be found in comments in the CNVnatpr_test.R script. This python script extracts per‑bin information and prepares the data for the CNVnator.R script, which performs further processing and generates visualizations.
+
 Documentation webpages for these tools:
 * HMMcopy: https://bioconductor.org/packages/release/bioc/html/HMMcopy.html
 * QDNAseq: https://www.bioconductor.org/packages/release/bioc/html/QDNAseq.html
