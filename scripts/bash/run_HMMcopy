@@ -1,0 +1,54 @@
+#!/bin/bash
+#SBATCH --job-name=hmmcopy_human_rscript
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:10:00
+#SBATCH --mem=1G
+#SBATCH --mail-type=all
+#SBATCH --output=./error/%x_%A_%a.log
+#SBATCH --array=0-11
+
+cd $SLURM_SUBMIT_DIR
+
+# Load required modules
+ml purge
+ml Anaconda3/2024.06-1
+
+#HMMcopy conda env
+eval "$(conda shell.bash hook)"
+conda activate hmmcopy
+export HMMCOPY_TOOLS="$CONDA_PREFIX/bin"
+
+#paths and arguments
+dir="/path/to/bam_files"
+files=($(find ${dir} -type f -name "*.bam" ))
+bam_file=${files[$SLURM_ARRAY_TASK_ID]}
+base_name=$(basename "$bam_file" .bam)
+outdir="/path/to/outdir"
+bam_dir=$(dirname "$bam_file")
+
+################################################################################
+### HMMcopy execution ###
+# define paths
+rfile="${bam_dir}/read_${base_name}_100kb.wig"
+
+# make index file if not exist
+if [ ! -f "${bam_file}.bai" ]; then
+    "${HMMCOPY_TOOLS}/readCounter" -b "$bam_file"
+fi
+# make read file if not exist
+if [ ! -f "$rfile" ]; then
+    "${HMMCOPY_TOOLS}/readCounter" \
+        -w 100000 \
+        -c chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY \
+        "$bam_file" > "$rfile"
+fi
+
+################################################################################
+
+ml purge
+ml R/4.5.2-gfbf-2025b
+ml Pandoc/3.6.2
+### visualisation ###
+# Run your R script
+Rscript /path/to/internship_UGent/scripts/HMMcopy_human.R "$bam_file" "$base_name" "$dir" "$outdir" "$rfile"

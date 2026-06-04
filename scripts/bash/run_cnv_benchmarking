@@ -1,0 +1,26 @@
+#!/bin/bash
+#SBATCH --job-name=CNV_benchmarking
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:10:00
+#SBATCH --mem=1G
+#SBATCH --mail-type=all
+#SBATCH --output=./error/%x_%A_%a.log
+#SBATCH --array=0-11
+
+cd $SLURM_SUBMIT_DIR
+
+# Load required modules
+ml purge
+ml Python/3.11.5-GCCcore-13.2.0
+
+#paths and arguments
+actual_cnvs="/path/to/actual_cnv_data.tsv"
+dir="/path/to/input_files"
+outfile="/path/to/results_cnv_benchmarking.txt"
+files=($(find ${dir} -type f -name "*clean_cnv_df.tsv" ))
+predicted_file=${files[$SLURM_ARRAY_TASK_ID]}
+
+echo "$predicted_file"
+# Run python script
+python /path/to/internship_UGent/scripts/cnv_benchmarking.py "$predicted_file" "$actual_cnvs" "$outfile"

@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH --job-name=visualisation_benchmarking
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --mem=1G
+#SBATCH --mail-type=all
+#SBATCH --output=./error/%x_%A_%a.log
+#SBATCH --array=0
+
+cd $SLURM_SUBMIT_DIR
+
+#load module
+ml purge
+ml R/4.5.2-gfbf-2025b
+
+input_file="/path/to/results_cnv_benchmarking.txt"
+
+# run R script
+Rscript /path/to/internship_UGent/scripts/visualisation_benchmarking.R "$input_file"
+
+
+
+

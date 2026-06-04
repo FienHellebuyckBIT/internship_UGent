@@ -1,0 +1,29 @@
+#!/bin/bash
+#SBATCH --job-name=QDNAseq_human_rscript
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:20:00
+#SBATCH --mem=4G
+#SBATCH --mail-type=all
+#SBATCH --output=./error/%x_%A_%a.log
+#SBATCH --array=0-11
+
+cd $SLURM_SUBMIT_DIR
+
+# Load required modules
+ml purge
+ml R/4.5.2-gfbf-2025b
+ml Pandoc/3.6.2
+#paths and arguments
+dir="/path/to/bam_files"
+files=($(find ${dir} -type f -name "*.bam" ))
+bam_file=${files[$SLURM_ARRAY_TASK_ID]}
+base_name=$(basename "$bam_file" .bam)
+outdir="/path/to/outdir"
+
+echo "$base_name"
+echo "$bam_file"
+
+# Run your R script
+Rscript /path/to/internship_UGent/scripts/QDNAseq_human.R "$bam_file" "$base_name" "$outdir"
+

@@ -1,0 +1,35 @@
+#!/bin/bash
+#SBATCH --job-name=controlfreec_human_rscript
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:30:00
+#SBATCH --mem=12G
+#SBATCH --mail-type=all
+#SBATCH --output=./error/%x_%A_%a.log
+#SBATCH --array=0-11
+
+cd $SLURM_SUBMIT_DIR
+
+# Load required modules
+ml purge
+ml Anaconda3/2024.06-1
+eval "$(conda shell.bash hook)"
+conda activate freec
+ml Pandoc/3.6.2
+ml R/4.5.2-gfbf-2025b
+
+
+#paths and arguments
+dir="/path/to/bam_files"
+files=($(find ${dir} -type f -name "*.bam" ))
+bam_file=${files[$SLURM_ARRAY_TASK_ID]}
+base_name=$(basename "$bam_file" .bam)
+outdir="/path/to/outdir"
+
+
+# Run your R script
+Rscript /path/to/internship_UGent/scripts/Control-FREEC_human.R "$bam_file" "$base_name" "$outdir" "$dir"
+
+
+
+
