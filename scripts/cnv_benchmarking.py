@@ -121,12 +121,16 @@ recall = TPR / (TPR + FNR)
 # calculate F1 score
 F1= 2 * (precision * recall) / (precision + recall)
 
+#false discovery rate
+FDR=(FPR/(FPR+TPR))
+
 # calculate results in percentage
 TPRp = int(recall*100)
-FPRp = int((FPR/(FPR/TNR))*100)
+FPRp = int((FPR/(FPR+TNR))*100)
 FNRp = int((FNR/(FNR+TPR))*100)
 TNRp = int((TNR/(TNR+FPR))*100)
 F1p = F1*100
+FDRp = FDR*100
 
 # open or create an output file in append mode
 with open(outfile, "a", encoding="utf-8") as f:
@@ -149,7 +153,7 @@ with open(outfile, "a", encoding="utf-8") as f:
     f.write(f" P | {TPR:7d} | {FPR:7d} |\n")
     f.write(f" N | {FNR:7d} | {TNR:7d} |\n")
     f.write("-" * 32 + "\n")
-    f.write(f"F1 score: {F1:.6f}\n")
+    f.write(f"F1 score: {F1:.4f}\nFDR: {FDR:.4f}\n")
     #append percentages metrics
     f.write("\nResults in percentage:\n")
     f.write("-" * 32 + "\n")
@@ -162,6 +166,6 @@ with open(outfile, "a", encoding="utf-8") as f:
     f.write(f" P | {TPRp:7d} | {FPRp:7d} |\n")
     f.write(f" N | {FNRp:7d} | {TNRp:7d} |\n")
     f.write("-" * 32 + "\n")
-    f.write(f"F1 score: {F1p:.2f}\n")
+    f.write(f"F1 score: {F1p:.2f}\nFDR: {FDRp:.2f}\n")
     f.write("#"*50)
 
