@@ -1,11 +1,13 @@
 # internship_UGent
+
+### Project description
 During my internship I evaluated different tools for detecting Copy Number Variations (CNVs):
 * HMMcopy
 * QDNAseq
 * Control‑FREEC
 * BICseq2
 * CNVnator
-  
+
 All scripts used in this project are available in the scripts directory.
 
 1. *_test.R
@@ -26,6 +28,13 @@ Some commands that previously had to be run manually (to create required input f
 
 The script extract_cnvnator_bins.py is a dedicated script used after running the standard CNVnator commands. These commands can be found in comments in the CNVnatpr_test.R script. This python script extracts per‑bin information and prepares the data for the CNVnator.R script, which performs further processing and generates visualizations.
 
+### Branch information
+This repository contains two branches with different purposes. The vsc_scripts branch is the active branch and includes the most recent updates, improved scripts, and the versions used during the internship. All current work, including updated scripts and VSC‑compatible bash scripts, is maintained there.
+
+The main branch contains the original version of the project and is kept only for reference. It does not include the latest changes.
+Users who want to run the newest scripts or reproduce the most recent analyses should work with the vsc_scripts branch.
+
+### Documentation
 Documentation webpages for these tools:
 * HMMcopy: https://bioconductor.org/packages/release/bioc/html/HMMcopy.html
 * QDNAseq: https://www.bioconductor.org/packages/release/bioc/html/QDNAseq.html
