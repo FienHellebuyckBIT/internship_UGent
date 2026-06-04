@@ -13,7 +13,7 @@ import os
 # fetch command line arguments
 input_path = sys.argv[1]
 actual_data = sys.argv[2]
-outfile = os.path.join(sys.argv[3], "results_cnv_benchmarking.txt")
+outfile = sys.argv[3]
 
 # determine treshold
 bin_size = 100000
