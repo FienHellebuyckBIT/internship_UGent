@@ -55,7 +55,7 @@ with open(actual_data, newline="", encoding="utf-8") as actual_cnvdata:
                 overlap_len = overlap_end - overlap_start
 
                 # treshold = 60% of the bin
-                threshold = 0.5 * (end_predicted_cnv - start_predicted_cnv)
+                threshold = 0.6 * (end_predicted_cnv - start_predicted_cnv)
 
                 # does bin overlap with cnv?
                 if ((overlap_len >= threshold) and
